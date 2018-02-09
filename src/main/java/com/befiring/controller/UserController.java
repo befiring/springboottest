@@ -3,6 +3,7 @@ package com.befiring.controller;
 import com.befiring.entity.ReturnValue;
 import com.befiring.entity.User;
 import com.befiring.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.omg.PortableInterceptor.USER_EXCEPTION;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,5 +53,28 @@ public class UserController {
         dataMap.put("total",list.size());
         dataMap.put("rows",list);
         return dataMap;
+    }
+
+    @RequestMapping(path = "/update")
+    public @ResponseBody ReturnValue updateUser(@RequestParam(value = "user")String userJson){
+        User user;
+        try {
+             user=new ObjectMapper().readValue(userJson,User.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+             return new ReturnValue.Builder(false).message("无法解析参数").build();
+        }
+        if (user != null) {
+            if(userRepository.save(user)!=null){
+                return new ReturnValue.Builder(true).build();
+            }
+        }
+         return new ReturnValue.Builder(false).message("写入数据库出错").build();
+    }
+
+    @RequestMapping(path = "/delete")
+    public @ResponseBody ReturnValue deleteUser(@RequestParam(value = "id")Long id){
+        userRepository.delete(id);
+        return new ReturnValue.Builder(true).build();
     }
 }

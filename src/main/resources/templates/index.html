@@ -2,13 +2,13 @@
 <html>
 
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <meta name="keywords" content="jquery,ui,easy,easyui,web"/>
-    <meta name="description" content="easyui help you build your web page easily!"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="keywords" content="jquery,ui,easy,easyui,web" />
+    <meta name="description" content="easyui help you build your web page easily!" />
     <title>jQuery EasyUI CRUD Demo</title>
-    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.net/Public/js/easyui/themes/default/easyui.css"/>
-    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.net/Public/js/easyui/themes/icon.css"/>
-    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.net/Public/js/easyui/demo/demo.css"/>
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.net/Public/js/easyui/themes/default/easyui.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.net/Public/js/easyui/themes/icon.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.net/Public/js/easyui/demo/demo.css" />
     <style type="text/css">
         #fm {
             margin: 0;
@@ -36,21 +36,46 @@
     </style>
     <script type="text/javascript" src="http://code.jquery.com/jquery-1.6.min.js"></script>
     <script type="text/javascript" src="http://www.jeasyui.net/Public/js/easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="js/public.js"></script>
     <script type="text/javascript">
+        var mode;
         var url;
+        var selectedRow;
 
         function newUser() {
+            mode = 'add';
             $('#dlg').dialog('open').dialog('setTitle', 'New User');
             $('#fm').form('clear');
             url = 'http://localhost:8080/user/add';
         }
 
         function editUser() {
-            var row = $('#dg').datagrid('getSelected');
-            if (row) {
+            mode = 'edit';
+            selectedRow = $('#dg').datagrid('getSelected');
+            if (selectedRow) {
                 $('#dlg').dialog('open').dialog('setTitle', 'Edit User');
-                $('#fm').form('load', row);
-                url = 'update_user.php?id=' + row.id;
+                $('#fm').form('load', selectedRow);
+                url = 'http://localhost:8080/user/update';
+            }
+        }
+
+        function updateUser() {
+            var method = "update";
+            selectedRow.password = $('#password').val();
+            selectedRow.name = $('#name').val();
+            var param = {
+                user: JSON.stringify(selectedRow)
+            };
+            var ajaxResult = AjaxRequest(method, param);
+            //            var resultJson = eval('(' + ajaxResult + ')');
+            if (ajaxResult.success) {
+                $('#dlg').dialog('close'); // close the dialog
+                $('#dg').datagrid('reload'); // reload the user data
+            } else {
+                $.messager.show({
+                    title: 'Error',
+                    msg: result.msg
+                });
             }
         }
 
@@ -80,7 +105,7 @@
             if (row) {
                 $.messager.confirm('Confirm', 'Are you sure you want to remove this user?', function(r) {
                     if (r) {
-                        $.post('remove_user.php', {
+                        $.post('http://localhost:8080/user/delete', {
                             id: row.id
                         }, function(result) {
                             if (result.success) {
@@ -114,8 +139,8 @@
                 <th field="name" width="50">Name</th>
                 <th field="password" width="50">Password</th>
                 <!--
-                <th field="phone" width="50">Phone</th>
-                <th field="email" width="50">Email</th>
+        <th field="phone" width="50">Phone</th>
+        <th field="email" width="50">Email</th>
 -->
             </tr>
         </thead>
@@ -131,24 +156,24 @@
         <form id="fm" method="post" novalidate="novalidate">
             <div class="fitem">
                 <label>Name:</label>
-                <input name="username" class="easyui-validatebox" required="true"/>
+                <input id="name" name="username" class="easyui-validatebox" required="true" />
             </div>
             <div class="fitem">
                 <label>Password:</label>
-                <input name="password" class="easyui-validatebox" required="true"/>
+                <input id="password" name="password" class="easyui-validatebox" required="true" />
             </div>
             <!--<div class="fitem">-->
-                <!--<label>Phone:</label>-->
-                <!--<input name="phone"/>-->
+            <!--<label>Phone:</label>-->
+            <!--<input name="phone"/>-->
             <!--</div>-->
             <!--<div class="fitem">-->
-                <!--<label>Email:</label>-->
-                <!--<input name="email" class="easyui-validatebox" validType="email"/>-->
+            <!--<label>Email:</label>-->
+            <!--<input name="email" class="easyui-validatebox" validType="email"/>-->
             <!--</div>-->
         </form>
     </div>
     <div id="dlg-buttons">
-        <a href="#" class="easyui-linkbutton" iconCls="icon-ok" onclick="saveUser()">Save</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-ok" onclick="mode=='add'?saveUser():updateUser()">Save</a>
         <a href="#" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')">Cancel</a>
     </div>
 </body>
