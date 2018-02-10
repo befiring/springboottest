@@ -1,5 +1,6 @@
 package com.befiring.controller;
 
+import com.befiring.annotations.IgnoreSecurity;
 import com.befiring.entity.ReturnValue;
 import com.befiring.entity.User;
 import com.befiring.repository.UserRepository;
@@ -39,8 +40,9 @@ public class UserController {
 
     }
 
+    @IgnoreSecurity
     @RequestMapping(path = "/all")
-    public @ResponseBody Map<String, Object> getAllUsers(){
+    public @ResponseBody ReturnValue getAllUsers(){
         Iterable<User> iterable = userRepository.findAll();
         List<User> list = new ArrayList<>();
         iterable.forEach(new Consumer<User>() {
@@ -49,10 +51,10 @@ public class UserController {
                 list.add(single);
             }
         });
-        Map<String,Object> dataMap=new HashMap<>();
+        HashMap<Object,Object> dataMap=new HashMap<>();
         dataMap.put("total",list.size());
         dataMap.put("rows",list);
-        return dataMap;
+        return new ReturnValue.Builder(true).data(dataMap).build();
     }
 
     @RequestMapping(path = "/update")
@@ -74,7 +76,12 @@ public class UserController {
 
     @RequestMapping(path = "/delete")
     public @ResponseBody ReturnValue deleteUser(@RequestParam(value = "id")Long id){
-        userRepository.delete(id);
+        try{
+            userRepository.delete(id);
+        }catch (Exception e){
+            return new ReturnValue.Builder(false).message(e.getMessage()).build();
+        }
+
         return new ReturnValue.Builder(true).build();
     }
 }
