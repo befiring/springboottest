@@ -7,7 +7,7 @@ public class ReturnValue {
     private final boolean success;
     private final int code;
     private final String message;
-    private final HashMap<Object,Object> data;
+    private final Object data;
 
     private ReturnValue(Builder builder){
         this.success=builder.success;
@@ -20,7 +20,7 @@ public class ReturnValue {
         private boolean success;
         private int code;
         private String message;
-        private HashMap<Object,Object> data;
+        private Object data;
 
         public Builder(boolean success){
             this.success=success;
@@ -33,7 +33,7 @@ public class ReturnValue {
             this.code=code;
             return this;
         }
-        public Builder data(HashMap<Object,Object> data){
+        public Builder data(Object data){
             this.data=data;
             return this;
         }
@@ -55,7 +55,7 @@ public class ReturnValue {
         return message;
     }
 
-    public HashMap<Object, Object> getData() {
+    public Object getData() {
         return data;
     }
 }

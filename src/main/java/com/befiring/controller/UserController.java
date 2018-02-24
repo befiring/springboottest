@@ -51,10 +51,11 @@ public class UserController {
                 list.add(single);
             }
         });
-        HashMap<Object,Object> dataMap=new HashMap<>();
-        dataMap.put("total",list.size());
-        dataMap.put("rows",list);
-        return new ReturnValue.Builder(true).data(dataMap).build();
+//        HashMap<Object,Object> dataMap=new HashMap<>();
+//        dataMap.put("total",list.size());
+//        dataMap.put("rows",list);
+//        dataMap.put("data",list);
+        return new ReturnValue.Builder(true).data(list).build();
     }
 
     @RequestMapping(path = "/update")
